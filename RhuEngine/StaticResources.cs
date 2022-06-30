@@ -65,12 +65,12 @@ namespace RhuEngine
 
 		private RFont LoadMainFont() {
 			var fonts = new FontCollection();
-			var main = fonts.Add(GetStaticResource("Fonts.NotoSans-Regular.ttf"));
+			var main = fonts.Add(GetStaticResource("Fonts.NotoSans-Regular.ttf")).CreateFont(96);
 			fonts.Add(GetStaticResource("Fonts.NotoEmoji-Regular.ttf"));
 			fonts.Add(GetStaticResource("Fonts.NotoSansSymbols-Regular.ttf"));
 			fonts.Add(GetStaticResource("Fonts.NotoSansSymbols2-Regular.ttf"));
 			fonts.Add(GetStaticResource("Fonts.NotoSansEgyptianHieroglyphs-Regular.ttf"));
-			return new RFont(main.CreateFont(RFont.FONTSIZE), fonts);
+			return new RFont(main, fonts);
 		}
 	}
 }

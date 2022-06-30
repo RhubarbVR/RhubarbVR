@@ -8,12 +8,9 @@ using SixLabors.Fonts;
 
 namespace RhuEngine.Components
 {
-	public interface ITextComp : ISyncObject {
-		public DynamicTextRender TextRender { get; }
-	}
 
 	[Category(new string[] { "Rendering" })]
-	public class WorldText : RenderingComponent, ITextComp
+	public class WorldText : RenderingComponent
 	{
 		[Default("<color=hsv(240,100,100)>Hello<color=blue><size14>World \n <size5>Trains \n are cool man<size10>\nHello ")]
 		[OnChanged(nameof(UpdateText))]
@@ -45,14 +42,11 @@ namespace RhuEngine.Components
 		[OnChanged(nameof(UpdateText))]
 		public readonly Sync<bool> MiddleLines;
 
-		public DynamicTextRender textRender = new();
-
-		public DynamicTextRender TextRender => textRender;
 		private void UpdateText() {
 			if (!Engine.EngineLink.CanRender) {
 				return;
 			}
-			textRender.LoadText(Pointer.ToString(), Text, Font.Asset, Leading, StartingColor, StartingStyle, StatingSize, VerticalAlien, HorizontalAlien, MiddleLines);
+			//textRender.LoadText(Pointer.ToString(), Text, Font.Asset, Leading, StartingColor, StartingStyle, StatingSize, VerticalAlien, HorizontalAlien, MiddleLines);
 		}
 		public override void OnAttach() {
 			base.OnAttach();

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 
 using RhuEngine.Linker;
-using RhuEngine.TextRendering;
 
 using RNumerics;
 
@@ -20,8 +20,12 @@ namespace RhuEngine
 	{
 		public RText(RFont rFont) {
 			TargetFont = rFont;
+			TextOptions = rFont.MakeTextOptions(96,HorizontalAlignment.Left, VerticalAlignment.Top,TextAlignment.Center);
 		}
+
 		public RFont TargetFont;
+
+		public TextOptions TextOptions;
 
 		public RTexture2D texture2D;
 
@@ -49,8 +53,8 @@ namespace RhuEngine
 			if (TargetFont is null) {
 				throw new Exception("Need a font to Make text");
 			}
-			texture2D = TargetFont?.RenderText(_text);
-			FontRectangle = TargetFont?.GetSizeOfText(_text)??new FontRectangle();
+			texture2D = TargetFont?.RenderText(_text,TextOptions);
+			FontRectangle = TargetFont?.GetSizeOfText(_text, TextOptions) ?? new FontRectangle();
 			AspectRatio = FontRectangle.Width / FontRectangle.Height;
 			UpdatedTexture?.Invoke();
 		}
@@ -66,63 +70,66 @@ namespace RhuEngine
 
 	public class RFont
 	{
-		public const float FONTSIZE = 96f;
-		public FontCollection Collection { get; set; }
-		public TextOptions TextOptions { get; set; }
+		public Font MainFont { get; }
+		public FontCollection FallBacks { get; }
 
-		public event Action UpdateAtlas;
-
-		public RFont(Font mainFont,FontCollection fallBacks) {
-			Collection = fallBacks;
-			TextOptions = new TextOptions(mainFont) {
-				Dpi = FONTSIZE,
-				FallbackFontFamilies = Collection.Families.ToArray(),
-			};
+		public RFont(Font mainFont, FontCollection fallBacks) {
+			MainFont = mainFont;
+			FallBacks = fallBacks;
 		}
 
 
 		public RFont(Font mainFont) {
-			TextOptions = new TextOptions(mainFont) {
-				Dpi = 96,
-			};
+			MainFont = mainFont;
 		}
 
-		public readonly List<FontAtlisPart> fontAtlisParts = new();
-
-		public (RMaterial mit,RTexture2D texture,Vector2f bottomleft, Vector2f topright) GetGlygh(Rune rune) {
-			foreach (var item in fontAtlisParts) {
-				var glyih = item.GetGlygh(rune);
-				if (glyih != null) {
-					return glyih.GetValueOrDefault();
+		public TextOptions MakeTextOptions(float dpi = 96f, HorizontalAlignment horizontalAlignment = HorizontalAlignment.Left, VerticalAlignment VerticalAlignment = VerticalAlignment.Top, TextAlignment TextAlignment = TextAlignment.Start, TextDirection TextDirection = TextDirection.Auto, WordBreaking WordBreaking = WordBreaking.Normal,float WrappingLength = -1f, Vector2f? Origin = null, float LineSpacing = 1f, HintingMode hintingMode = HintingMode.None, float TabWidth = 4f, LayoutMode LayoutMode = LayoutMode.HorizontalTopBottom, KerningMode KerningMode = KerningMode.Normal) {
+			return FallBacks is null
+				? new TextOptions(MainFont) {
+					Dpi = dpi,
+					TabWidth = TabWidth,
+					HintingMode = hintingMode,
+					LayoutMode = LayoutMode,
+					KerningMode = KerningMode,
+					LineSpacing = LineSpacing,
+					Origin = (Vector2)(Origin??Vector2f.Zero),
+					WrappingLength = WrappingLength,
+					WordBreaking = WordBreaking,
+					TextAlignment = TextAlignment,
+					TextDirection = TextDirection,
+					HorizontalAlignment = horizontalAlignment,
+					VerticalAlignment = VerticalAlignment,
 				}
-			}
-			RLog.Info("Ran out of room adding another text texture");
-			var fontAtlis = new FontAtlisPart(this);
-			fontAtlisParts.Add(fontAtlis);
-			UpdateAtlas?.Invoke();
-			return fontAtlis.GetGlygh(rune).GetValueOrDefault();
+				: new TextOptions(MainFont) {
+				Dpi = dpi,
+				FallbackFontFamilies = FallBacks.Families.ToArray(),
+					TabWidth = TabWidth,
+					HintingMode = hintingMode,
+					LayoutMode = LayoutMode,
+					KerningMode = KerningMode,
+					LineSpacing = LineSpacing,
+					Origin = (Vector2)(Origin??Vector2f.Zero),
+					WrappingLength = WrappingLength,
+					WordBreaking = WordBreaking,
+					TextAlignment = TextAlignment,
+					TextDirection = TextDirection,
+					HorizontalAlignment = horizontalAlignment,
+					VerticalAlignment = VerticalAlignment,
+				};
 		}
 
-		public FontRectangle GetSizeOfText(string text) {
-			return TextMeasurer.Measure(text, TextOptions);
-		}
-		public FontRectangle GetSizeOfRune(Rune rune) {
-			return TextMeasurer.Measure(rune.ToString(), TextOptions);
-		}
-
-
-		public RTexture2D RenderText(string text) {
-			var size = TextMeasurer.Measure(text, TextOptions);
+		public RTexture2D RenderText(string text,TextOptions textOptions) {
+			var size = TextMeasurer.Measure(text, textOptions);
 			if (size == FontRectangle.Empty) {
 				return RTexture2D.White;
 			}
 			using var img = new Image<Rgba32>((int)size.Width, (int)size.Height);
-			img.Mutate(x => x.DrawText(TextOptions, text, Color.White));
+			img.Mutate(x => x.DrawText(textOptions, text, Color.White));
 			return new ImageSharpTexture(img).CreateTextureAndDisposes();
 		}
 
-		public float GetXAdvances(Rune item) {
-			return (TextMeasurer.Measure(item.ToString() + " ", TextOptions).Width - TextMeasurer.Measure(" ", TextOptions).Width) / 100;
+		public FontRectangle GetSizeOfText(string text, TextOptions textOptions) {
+			return TextMeasurer.Measure(text, textOptions);
 		}
 	}
 }

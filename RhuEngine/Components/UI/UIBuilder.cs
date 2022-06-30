@@ -237,7 +237,8 @@ namespace RhuEngine.Components
 			button.Item2.Click.Target = editor.EditingClick;
 			var currsor = AttachComponentToStack<UITextCurrsor>();
 			currsor.TextCurrsor.Target = editor;
-			currsor.TextComp.Target = uitext;
+			//Todo add text ref
+			//currsor.TextComp.Target = uitext;
 			currsor.Material.Target = MainMit;
 			if (autopop) {
 				PopRect();
