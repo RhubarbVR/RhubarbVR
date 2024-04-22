@@ -5,7 +5,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/RhubarbVR/RhubarbVR">
-    <img src="Docs/RhubarbVR.png" alt="Rhubarb-Logo" width="80" height="80">
+    <img src="RhubarbVR.png" alt="Rhubarb-Logo" width="80" height="80">
   </a>
 
   <h3 align="center">Rhubarb VR</h3>
@@ -65,7 +65,7 @@ RhubarbVR is a networked VR game engine. What does this mean? Well, Rhubarb is a
 
 ## Preview
 
-![](./Docs/preview.png)
+![](./preview.webp)
 
 ## Usage
 
